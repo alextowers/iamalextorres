@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -15,9 +15,19 @@ export function Lifestyle() {
     const { language } = useLanguage();
     const [games, setGames] = useState<Game[]>([]);
 
+    const [isLoaded, setIsLoaded] = useState(false);
+
     useEffect(() => {
-        getPosts(language).then(setPosts);
-        getGames().then(setGames);
+        let isMounted = true;
+        setIsLoaded(false);
+        Promise.all([getPosts(language), getGames()]).then(([postsData, gamesData]) => {
+            if (isMounted) {
+                setPosts(postsData);
+                setGames(gamesData);
+                setIsLoaded(true);
+            }
+        });
+        return () => { isMounted = false; };
     }, [language]);
 
     return (
@@ -40,29 +50,41 @@ export function Lifestyle() {
                     <h2 className="text-crimson-muted font-medium tracking-wide uppercase mb-2">{TRANSLATIONS[language].lifestyle.subtitle}</h2>
                     <h3 className="text-4xl font-bold mb-8">{TRANSLATIONS[language].lifestyle.title}</h3>
 
-                    <div className="grid md:grid-cols-2 gap-12">
-                        {posts.map((post) => (
-                            <Link href={`/blog/${post.slug.current}`} key={post._id} className="group cursor-pointer block">
-                                <div className="relative h-64 w-full rounded-xl overflow-hidden mb-4 bg-gray-100">
-                                    {post.mainImage && (
-                                        <Image
-                                            src={urlFor(post.mainImage).url()}
-                                            alt={post.title}
-                                            fill
-                                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                        />
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-crimson-muted font-medium mb-2">
-                                    <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
-                                    <span>•</span>
-                                    <span>Blog</span>
-                                </div>
-                                <h4 className="text-2xl font-bold group-hover:text-crimson transition-colors">{post.title}</h4>
-                                <p className="text-gray-600 mt-2">{post.excerpt}</p>
-                            </Link>
-                        ))}
-                    </div>
+                    <AnimatePresence mode="wait">
+                        {isLoaded && (
+                            <motion.div
+                                key={`blog-${language}`}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.5 }}
+                                className="grid md:grid-cols-2 gap-12"
+                            >
+                                {posts.map((post) => (
+                                    <Link href={`/blog/${post.slug.current}`} key={post._id} className="group cursor-pointer block">
+                                        <div className="relative h-64 w-full rounded-xl overflow-hidden mb-4 bg-gray-100">
+                                            {post.mainImage && (
+                                                <Image
+                                                    src={urlFor(post.mainImage).url()}
+                                                    alt={post.title}
+                                                    fill
+                                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                                                    sizes="(max-width: 768px) 100vw, 600px"
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-crimson-muted font-medium mb-2">
+                                            <span>{new Date(post.publishedAt).toLocaleDateString()}</span>
+                                            <span>•</span>
+                                            <span>Blog</span>
+                                        </div>
+                                        <h4 className="text-2xl font-bold group-hover:text-crimson transition-colors">{post.title}</h4>
+                                        <p className="text-gray-600 mt-2">{post.excerpt}</p>
+                                    </Link>
+                                ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.div>
 
                 {/* Gaming & Spotify Grid */}
@@ -82,7 +104,13 @@ export function Lifestyle() {
                                 <div key={game._id} className="flex-none w-36 snap-center">
                                     <div className="relative aspect-[3/4] rounded-lg overflow-hidden mb-2 bg-gray-100">
                                         {game.coverImage && (
-                                            <Image src={urlFor(game.coverImage).url()} alt={game.title} fill className="object-cover" />
+                                            <Image
+                                                src={urlFor(game.coverImage).url()}
+                                                alt={game.title}
+                                                fill
+                                                className="object-cover"
+                                                sizes="150px"
+                                            />
                                         )}
                                     </div>
                                     <p className="font-bold text-sm truncate">{game.title}</p>
