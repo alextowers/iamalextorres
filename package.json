@@ -6,21 +6,41 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run"
   },
   "dependencies": {
+    "@portabletext/react": "^6.0.2",
+    "@sanity/document-internationalization": "^4.1.1",
+    "@sanity/image-url": "^2.0.2",
+    "@sanity/vision": "^5.4.0",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.26.2",
+    "lucide-react": "^0.562.0",
+    "mapbox-gl": "^3.18.0",
     "next": "16.1.2",
+    "next-sanity": "^12.0.12",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-map-gl": "^8.1.0",
+    "sanity": "^5.4.0",
+    "spotify-web-api-node": "^5.0.2",
+    "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/spotify-web-api-node": "^5.0.11",
+    "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.2",
+    "jsdom": "^27.4.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.17"
   }
 }
